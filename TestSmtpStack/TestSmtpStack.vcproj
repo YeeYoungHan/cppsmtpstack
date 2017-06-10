@@ -173,7 +173,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\TestSmtpClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TestSmtpResponse.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\TestSmtpStack.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TestSmtpStack.h"
 				>
 			</File>
 		</Filter>

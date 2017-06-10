@@ -154,6 +154,10 @@
 				RelativePath=".\SmtpClient.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\SmtpResponse.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="헤더 파일"
@@ -162,6 +166,10 @@
 			>
 			<File
 				RelativePath=".\SmtpClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SmtpResponse.h"
 				>
 			</File>
 		</Filter>

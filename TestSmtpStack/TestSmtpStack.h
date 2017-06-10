@@ -16,11 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
-#include "TestSmtpStack.h"
+#ifndef _TEST_SMTP_STACK_H_
+#define _TEST_SMTP_STACK_H_
 
-int main( int argc, char *argv[] )
-{
-	TestSmtpResponse();
+bool TestSmtpClient( );
+bool TestSmtpResponse( );
 
-	return 0;
-}
+#endif

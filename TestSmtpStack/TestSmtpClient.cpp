@@ -18,9 +18,8 @@
 
 #include "TestSmtpStack.h"
 
-int main( int argc, char *argv[] )
+bool TestSmtpClient( )
 {
-	TestSmtpResponse();
 
-	return 0;
+	return true;
 }

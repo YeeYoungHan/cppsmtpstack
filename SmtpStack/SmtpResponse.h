@@ -16,11 +16,29 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
-#include "TestSmtpStack.h"
+#ifndef _SMTP_RESPONSE_H_
+#define _SMTP_RESPONSE_H_
 
-int main( int argc, char *argv[] )
+#include "StringUtility.h"
+
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 응답 메시지를 파싱하여서 저장하는 클래스
+ */
+class CSmtpResponse
 {
-	TestSmtpResponse();
+public:
+	CSmtpResponse();
+	~CSmtpResponse();
 
-	return 0;
-}
+	int Parse( const char * pszText, int iTextLen );
+	int ParseLine( const char * pszText, int iTextLen, bool & bLastLine );
+
+	/** SMTP 응답 코드 */
+	int m_iCode;
+
+	/** SMTP 응답 메시지 리스트 */
+	STRING_LIST m_clsReplyList;
+};
+
+#endif
