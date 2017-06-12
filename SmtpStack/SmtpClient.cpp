@@ -70,9 +70,9 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 		return false;
 	}
 
-	std::string strSendBuf;
+	std::string strSendBuf, strRecvBuf;
 	char	szRecvBuf[8192];
-	int		iSendBufLen;
+	int		iSendBufLen, n;
 
 	strSendBuf = "MAIL FROM:";
 	strSendBuf.append( "<" );
@@ -87,7 +87,21 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 		return false;
 	}
 
-	TcpRecv( m_hSocket, szRecvBuf, sizeof(szRecvBuf), m_iTimeout );
+	while( 1 )
+	{
+		n = TcpRecv( m_hSocket, szRecvBuf, sizeof(szRecvBuf), m_iTimeout );
+		if( n <= 0 )
+		{
+			CLog::Print( LOG_ERROR, "%s TcpRecv(%s) error(%d)", __FUNCTION__, strRecvBuf.c_str(), GetError() );
+			return false;
+		}
+
+		strRecvBuf.append( szRecvBuf, n );
+		if( m_clsResponse.Parse( strRecvBuf.c_str(), strRecvBuf.length() ) > 0 )
+		{
+			break;
+		}
+	}
 
 	return true;
 }

@@ -21,6 +21,7 @@
 
 #include <string>
 #include "SipTcp.h"
+#include "SmtpResponse.h"
 
 class CSmtpClient
 {
@@ -41,6 +42,7 @@ private:
 	int					m_iTimeout;
 
 	Socket			m_hSocket;
+	CSmtpResponse	m_clsResponse;
 };
 
 #endif
