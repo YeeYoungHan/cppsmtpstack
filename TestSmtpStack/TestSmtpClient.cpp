@@ -24,15 +24,20 @@ bool TestSmtpClient( int argc, char *argv[] )
 {
 	CSmtpClient clsClient;
 
-	if( argc != 9 )
+	if( argc != 7 )
 	{
-		printf( "%s {server ip} {server port} {user id} {password} {from} {to} {subject} {data}\n" );
+		printf( "%s {server ip} {server port} {user id} {password} {from} {to}\n", argv[0] );
 		return false;
 	}
 
 	CLog::SetLevel( LOG_DEBUG | LOG_NETWORK );
 
 	if( clsClient.Connect( argv[1], atoi(argv[2]), argv[3], argv[4] ) == false )
+	{
+		return false;
+	}
+
+	if( clsClient.Send( argv[5], argv[6], "test", "test mail" ) == false )
 	{
 		return false;
 	}

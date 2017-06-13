@@ -151,7 +151,37 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 	strSendBuf.append( pszFrom );
 	strSendBuf.append( ">" );
 
-	if( Send( strSendBuf, clsResponse ) == false ) return false;
+	if( Send( strSendBuf, clsResponse, 250 ) == false ) 
+	{
+		CLog::Print( LOG_ERROR, "%s MAIL FROM error", __FUNCTION__ );
+		return false;
+	}
+
+	strSendBuf = "RCPT TO:";
+	strSendBuf.append( "<" );
+	strSendBuf.append( pszTo );
+	strSendBuf.append( ">" );
+
+	if( Send( strSendBuf, clsResponse, 250 ) == false ) 
+	{
+		CLog::Print( LOG_ERROR, "%s RCPT TO error", __FUNCTION__ );
+		return false;
+	}
+
+	if( Send( "DATA", clsResponse, 354 ) == false )
+	{
+		CLog::Print( LOG_ERROR, "%s DATA error", __FUNCTION__ );
+		return false;
+	}
+
+	strSendBuf = pszData;
+	strSendBuf.append( "\r\n." );
+
+	if( Send( strSendBuf, clsResponse, 250 ) == false )
+	{
+		CLog::Print( LOG_ERROR, "%s DATA body error", __FUNCTION__ );
+		return false;
+	}
 
 	return true;
 }
