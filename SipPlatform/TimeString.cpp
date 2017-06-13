@@ -70,6 +70,40 @@ void GetDateTimeString( char * pszTime, int iTimeSize )
 
 /**
  * @ingroup SipPlatform
+ * @brief Smtp 프로토콜에서 사용할 Date 문자열을 생성한다.
+ * @param iTime			시간 변수
+ * @param pszTime		[out] 시간 문자열이 저장될 변수 - 26byte 이상이어야 한다.
+ * @param iTimeSize pszTime 변수의 크기
+ */
+void GetSmtpDateString( time_t iTime, char * pszTime, int iTimeSize )
+{
+	struct tm	sttTm;
+	static char garrMonth[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	static char garrWeek[7][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
+	LocalTime( iTime, sttTm );
+
+	snprintf( pszTime, iTimeSize, "%s, %d %s %d %02d:%02d:%02d", garrWeek[sttTm.tm_wday], sttTm.tm_mday, garrMonth[sttTm.tm_mon], sttTm.tm_year + 1900
+		, sttTm.tm_hour, sttTm.tm_min, sttTm.tm_sec );
+}
+
+/**
+ * @ingroup SipPlatform
+ * @brief Smtp 프로토콜에서 사용할 Date 문자열을 생성한다.
+ * @param pszTime		[out] 년월일시분초 문자열 저장 변수 - 26byte 이상이어야 한다.
+ * @param iTimeSize pszTime 변수의 크기
+ */
+void GetSmtpDateString( char * pszTime, int iTimeSize )
+{
+	time_t		iTime;
+
+	time( &iTime );
+
+	GetSmtpDateString( iTime, pszTime, iTimeSize );
+}
+
+/**
+ * @ingroup SipPlatform
  * @brief 년월일 문자열을 저장한다.
  * @param iTime			시간
  * @param pszDate		년월일 문자열을 저장 변수

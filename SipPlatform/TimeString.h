@@ -26,6 +26,9 @@ void LocalTime( time_t iTime, struct tm & sttTm );
 void GetDateTimeString( time_t iTime, char * pszTime, int iTimeSize );
 void GetDateTimeString( char * pszTime, int iTimeSize );
 
+void GetSmtpDateString( time_t iTime, char * pszTime, int iTimeSize );
+void GetSmtpDateString( char * pszTime, int iTimeSize );
+
 void GetDateString( time_t iTime, char * pszDate, int iDateSize );
 void GetDateString( char * pszDate, int iDateSize );
 

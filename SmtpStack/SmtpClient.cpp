@@ -20,6 +20,7 @@
 #include "SmtpClient.h"
 #include "Log.h"
 #include "Base64.h"
+#include "TimeString.h"
 #include "MemoryDebug.h"
 
 CSmtpClient::CSmtpClient() : m_iServerPort(25), m_iTimeout(10), m_hSocket(INVALID_SOCKET)
@@ -174,7 +175,26 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 		return false;
 	}
 
-	strSendBuf = pszData;
+	strSendBuf = "Subject: ";
+	strSendBuf.append( pszSubject );
+	strSendBuf.append( "\r\n" );
+
+	strSendBuf.append( "From: " );
+	strSendBuf.append( pszFrom );
+	strSendBuf.append( "\r\n" );
+
+	strSendBuf.append( "To: " );
+	strSendBuf.append( pszTo );
+	strSendBuf.append( "\r\n" );
+
+	char szDate[31];
+
+	GetSmtpDateString( szDate, sizeof(szDate) );
+	strSendBuf.append( "Date: " );
+	strSendBuf.append( szDate );
+	strSendBuf.append( "\r\n\r\n" );
+
+	strSendBuf.append( pszData );
 	strSendBuf.append( "\r\n." );
 
 	if( Send( strSendBuf, clsResponse, 250 ) == false )
