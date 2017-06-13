@@ -1,0 +1,4 @@
+RFC 2045 에서 규정한 MIME 에 포함될 BASE64 문자열의 최대 길이는 76byte 이다.
+또한 라인 구분자는 \r\n 이다.
+
+[참고자료] https://en.wikipedia.org/wiki/Base64
