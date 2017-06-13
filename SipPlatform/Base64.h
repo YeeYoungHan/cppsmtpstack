@@ -16,26 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
-#include "TestSmtpStack.h"
-#include "SmtpClient.h"
-#include "Log.h"
+#ifndef _BASE64_H_
+#define _BASE64_H_
 
-bool TestSmtpClient( int argc, char *argv[] )
-{
-	CSmtpClient clsClient;
+int GetBase64EncodeLength( int iLength );
+int GetBase64DecodeLength( int iLength );
+int Base64Encode( const char * pszInput, int iInputLength, char * pszOutput, int iOutputLength );
+int Base64Decode( const char * pszInput, int iInputLength, char * pszOutput, int iOutputLength );
 
-	if( argc != 9 )
-	{
-		printf( "%s {server ip} {server port} {user id} {password} {from} {to} {subject} {data}\n" );
-		return false;
-	}
-
-	CLog::SetLevel( LOG_DEBUG | LOG_NETWORK );
-
-	if( clsClient.Connect( argv[1], atoi(argv[2]), argv[3], argv[4] ) == false )
-	{
-		return false;
-	}
-
-	return true;
-}
+#endif

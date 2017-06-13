@@ -17,6 +17,7 @@
  */
 
 #include "SmtpResponse.h"
+#include "MemoryDebug.h"
 
 CSmtpResponse::CSmtpResponse() : m_iCode(0)
 {
@@ -76,6 +77,11 @@ int CSmtpResponse::ParseLine( const char * pszText, int iTextLen, bool & bLastLi
 	if( pszText[3] == ' ' )
 	{
 		bLastLine = true;
+		
+		std::string strCode;
+		strCode.append( pszText, 3 );
+
+		m_iCode = atoi( strCode.c_str() );
 	}
 	else
 	{

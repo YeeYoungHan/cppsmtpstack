@@ -19,6 +19,7 @@
 #include "SipPlatformDefine.h"
 #include "SmtpClient.h"
 #include "Log.h"
+#include "Base64.h"
 #include "MemoryDebug.h"
 
 CSmtpClient::CSmtpClient() : m_iServerPort(25), m_iTimeout(10), m_hSocket(INVALID_SOCKET)
@@ -50,6 +51,78 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 		return false;
 	}
 
+	CSmtpResponse clsResponse;
+
+	if( Recv( clsResponse ) == false )
+	{
+		CLog::Print( LOG_ERROR, "%s recv first response error", __FUNCTION__ );
+		Close();
+		return false;
+	}
+
+	if( clsResponse.m_iCode != 220 )
+	{
+		CLog::Print( LOG_ERROR, "%s reply code(%d) != 220", __FUNCTION__, clsResponse.m_iCode );
+		Close();
+		return false;
+	}
+
+	if( Send( "EHLO", clsResponse, 250 ) == false )
+	{
+		CLog::Print( LOG_ERROR, "%s EHLO error", __FUNCTION__ );
+		Close();
+		return false;
+	}
+
+	STRING_LIST::iterator itSL;
+	STRING_LIST clsAuthList;
+
+	for( itSL = clsResponse.m_clsReplyList.begin(); itSL != clsResponse.m_clsReplyList.end(); ++itSL )
+	{
+		if( !strncmp( itSL->c_str(), "AUTH", 4 ) )
+		{
+			SplitString( itSL->c_str(), clsAuthList, ' ' );
+			if( clsAuthList.empty() == false ) break;
+		}
+	}
+
+	if( SearchStringList( clsAuthList, "PLAIN" ) )
+	{
+		if( Send( "AUTH PLAIN", clsResponse, 334 ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+
+		std::string strSendBuf;
+
+		strSendBuf.clear();
+		strSendBuf.append( "\0", 1 );
+		strSendBuf.append( pszUserId );
+		strSendBuf.append( "\0", 1 );
+		strSendBuf.append( pszPassWord );
+
+		int iLen = GetBase64EncodeLength( strSendBuf.length() ) + 10;
+		char * pszBuf = (char *)malloc( iLen );
+		if( pszBuf == NULL )
+		{
+			return false;
+		}
+
+		Base64Encode( strSendBuf.c_str(), strSendBuf.length(), pszBuf, iLen );
+		
+		bool bRes = Send( pszBuf, clsResponse, 235 );
+		free( pszBuf );
+
+		if( bRes == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -70,22 +143,56 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 		return false;
 	}
 
-	std::string strSendBuf, strRecvBuf;
-	char	szRecvBuf[8192];
-	int		iSendBufLen, n;
+	std::string strSendBuf;
+	CSmtpResponse clsResponse;
 
 	strSendBuf = "MAIL FROM:";
 	strSendBuf.append( "<" );
 	strSendBuf.append( pszFrom );
 	strSendBuf.append( ">" );
 
-	iSendBufLen = (int)strSendBuf.length();
+	if( Send( strSendBuf, clsResponse ) == false ) return false;
 
-	if( TcpSend( m_hSocket, strSendBuf.c_str(), iSendBufLen ) != iSendBufLen )
+	return true;
+}
+
+bool CSmtpClient::Send( std::string & strRequest, CSmtpResponse & clsResponse, int iWantCode )
+{
+	strRequest.append( "\r\n" );
+
+	int iSendLen = strRequest.length();
+
+	CLog::Print( LOG_NETWORK, "TcpSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
+
+	if( TcpSend( m_hSocket, strRequest.c_str(), iSendLen ) != iSendLen )
 	{
-		CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strSendBuf.c_str(), GetError() );
+		CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strRequest.c_str(), GetError() );
 		return false;
 	}
+
+	if( Recv( clsResponse ) == false ) return false;
+
+	if( clsResponse.m_iCode != iWantCode )
+	{
+		CLog::Print( LOG_ERROR, "%s reply code(%d) != want code(%d)", __FUNCTION__, clsResponse.m_iCode, iWantCode );
+		return false;
+	}
+
+	return true;
+}
+
+bool CSmtpClient::Send( const char * pszRequest, CSmtpResponse & clsResponse, int iWantCode )
+{
+	std::string strRequest = pszRequest;
+
+	return Send( strRequest, clsResponse, iWantCode );
+}
+
+bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
+{
+	std::string strRecvBuf;
+	char	szRecvBuf[8192];
+	int n;
 
 	while( 1 )
 	{
@@ -96,8 +203,10 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 			return false;
 		}
 
+		CLog::Print( LOG_NETWORK, "TcpRecv(%s:%d) [%.*s]", m_strServerIp.c_str(), m_iServerPort, n, szRecvBuf );
+
 		strRecvBuf.append( szRecvBuf, n );
-		if( m_clsResponse.Parse( strRecvBuf.c_str(), strRecvBuf.length() ) > 0 )
+		if( clsResponse.Parse( strRecvBuf.c_str(), strRecvBuf.length() ) > 0 )
 		{
 			break;
 		}

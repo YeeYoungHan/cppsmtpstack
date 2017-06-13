@@ -35,6 +35,10 @@ public:
 	bool Send( const char * pszFrom, const char * pszTo, const char * pszSubject, const char * pszData );
 
 private:
+	bool Send( std::string & strRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
+	bool Send( const char * pszRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
+	bool Recv( CSmtpResponse & clsResponse );
+
 	std::string m_strServerIp;
 	int					m_iServerPort;
 	std::string m_strUserId;
@@ -42,7 +46,6 @@ private:
 	int					m_iTimeout;
 
 	Socket			m_hSocket;
-	CSmtpResponse	m_clsResponse;
 };
 
 #endif

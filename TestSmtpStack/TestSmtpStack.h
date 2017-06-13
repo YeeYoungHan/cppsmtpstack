@@ -19,7 +19,7 @@
 #ifndef _TEST_SMTP_STACK_H_
 #define _TEST_SMTP_STACK_H_
 
-bool TestSmtpClient( );
+bool TestSmtpClient( int argc, char *argv[] );
 bool TestSmtpResponse( );
 
 #endif
