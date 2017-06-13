@@ -96,27 +96,60 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 			return false;
 		}
 
-		std::string strSendBuf;
+		std::string strData, strSendBuf;
 
-		strSendBuf.clear();
-		strSendBuf.append( "\0", 1 );
-		strSendBuf.append( pszUserId );
-		strSendBuf.append( "\0", 1 );
-		strSendBuf.append( pszPassWord );
+		strData.append( "\0", 1 );
+		strData.append( pszUserId );
+		strData.append( "\0", 1 );
+		strData.append( pszPassWord );
 
-		int iLen = GetBase64EncodeLength( strSendBuf.length() ) + 10;
-		char * pszBuf = (char *)malloc( iLen );
-		if( pszBuf == NULL )
+		if( Base64Encode( strData.c_str(), strData.length(), strSendBuf ) == false )
 		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+		
+		if( Send( strSendBuf, clsResponse, 235 ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+	}
+	else if( SearchStringList( clsAuthList, "LOGIN" ) )
+	{
+		if( Send( "AUTH LOGIN", clsResponse, 334 ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN error", __FUNCTION__ );
+			Close();
 			return false;
 		}
 
-		Base64Encode( strSendBuf.c_str(), strSendBuf.length(), pszBuf, iLen );
-		
-		bool bRes = Send( pszBuf, clsResponse, 235 );
-		free( pszBuf );
+		std::string strBase64Id, strBase64Pw;
 
-		if( bRes == false )
+		if( Base64Encode( pszUserId, strlen(pszUserId), strBase64Id ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 id error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+
+		if( Base64Encode( pszPassWord, strlen(pszPassWord), strBase64Pw ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 pw error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+
+		if( Send( strBase64Id, clsResponse, 334 ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s AUTH LOGIN id error", __FUNCTION__ );
+			Close();
+			return false;
+		}
+
+		if( Send( strBase64Pw, clsResponse, 235 ) == false )
 		{
 			CLog::Print( LOG_ERROR, "%s AUTH PLAIN error", __FUNCTION__ );
 			Close();

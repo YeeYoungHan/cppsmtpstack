@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
+#include "Base64.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -163,4 +164,29 @@ int Base64Decode( const char * pszInput, int iInputLength, char * pszOutput, int
 
 	pszResult[k] = '\0';
 	return j;
+}
+
+/**	
+ * @ingroup SipPlatform
+ * @brief plain text 를 base64 문자열로 변환한다.
+ * @param	pszInput			plain text 문자열
+ * @param	iInputLength	plain text 문자열의 길이
+ * @param	strOutput			base64 문자열 저장 변수
+ * @return	성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
+bool Base64Encode( const char * pszInput, int iInputLength, std::string & strOutput )
+{
+	int iOutputLen = GetBase64EncodeLength( iInputLength );
+	char * pszOutput = (char *)malloc( iOutputLen );
+	if( pszOutput == NULL )
+	{
+		return false;
+	}
+
+	Base64Encode( pszInput, iInputLength, pszOutput, iOutputLen );
+	strOutput = pszOutput;
+
+	free( pszOutput );
+
+	return true;
 }
