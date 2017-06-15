@@ -22,6 +22,7 @@
 #include <string>
 #include "SipTcp.h"
 #include "SmtpResponse.h"
+#include "TlsFunction.h"
 
 class CSmtpClient
 {
@@ -29,7 +30,7 @@ public:
 	CSmtpClient();
 	~CSmtpClient();
 
-	bool Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord );
+	bool Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord, bool bUseTls = false );
 	void Close( );
 
 	bool Send( const char * pszFrom, const char * pszTo, const char * pszSubject, const char * pszData );
@@ -46,6 +47,7 @@ private:
 	int					m_iTimeout;
 
 	Socket			m_hSocket;
+	SSL					* m_psttSsl;
 };
 
 #endif

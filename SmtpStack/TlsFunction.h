@@ -16,37 +16,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
-#include "TestSmtpStack.h"
-#include "SmtpClient.h"
-#include "Log.h"
+#ifndef _TLS_FUNCTION_H_
+#define _TLS_FUNCTION_H_
 
-bool TestSmtpClient( int argc, char *argv[] )
-{
-	CSmtpClient clsClient;
-	bool bUseTls = false;
+#include "SipTcp.h"
+#include "openssl/rsa.h"
+#include "openssl/crypto.h"
+#include "openssl/x509.h"
+#include "openssl/pem.h"
+#include "openssl/ssl.h"
+#include "openssl/err.h"
 
-	if( argc < 7 )
-	{
-		printf( "%s {server ip} {server port} {user id} {password} {from} {to}\n", argv[0] );
-		return false;
-	}
+bool SSLServerStart( const char * szCertFile );
+bool SSLServerStop( );
+void SSLFinal();
 
-	if( argc == 8 )
-	{
-		bUseTls = true;
-	}
+bool SSLClientStart( );
+bool SSLClientStop( );
 
-	CLog::SetLevel( LOG_DEBUG | LOG_NETWORK );
+bool SSLConnect( Socket iFd, SSL ** ppsttSsl );
+bool SSLAccept( Socket iFd, SSL ** ppsttSsl, bool bCheckClientCert, int iVerifyDepth, int iAcceptTimeout );
+int SSLSend( SSL * ssl, const char * szBuf, int iBufLen );
+int SSLRecv( SSL * ssl, char * szBuf, int iBufLen );
+bool SSLClose( SSL * ssl );
 
-	if( clsClient.Connect( argv[1], atoi(argv[2]), argv[3], argv[4], bUseTls ) == false )
-	{
-		return false;
-	}
+void SSLPrintLogServerCipherList( );
+void SSLPrintLogClientCipherList( );
 
-	if( clsClient.Send( argv[5], argv[6], "test", "test mail" ) == false )
-	{
-		return false;
-	}
-
-	return true;
-}
+#endif

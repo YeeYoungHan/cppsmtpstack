@@ -65,7 +65,31 @@ int CSmtpResponse::Parse( const char * pszText, int iTextLen )
 int CSmtpResponse::ParseLine( const char * pszText, int iTextLen, bool & bLastLine )
 {
 	// reply code(3byte) space(1byte) CRLF(2byte)
-	if( iTextLen < 6 ) return -1;
+	if( iTextLen < 6 ) 
+	{
+		// code(3byte) CRLF(2byte)
+		if( iTextLen == 5 )
+		{
+			for( int i = 0; i < 3; ++i )
+			{
+				if( isdigit( pszText[i] ) == 0 ) return -1;
+			}
+
+			if( pszText[3] == '\r' && pszText[4] == '\n' )
+			{
+				bLastLine = true;
+
+				std::string strCode;
+				strCode.append( pszText, 3 );
+
+				m_iCode = atoi( strCode.c_str() );
+
+				return iTextLen;
+			}
+		}
+
+		return -1;
+	}
 
 	for( int i = 0; i < 3; ++i )
 	{

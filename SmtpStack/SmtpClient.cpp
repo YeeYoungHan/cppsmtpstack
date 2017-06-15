@@ -23,7 +23,7 @@
 #include "TimeString.h"
 #include "MemoryDebug.h"
 
-CSmtpClient::CSmtpClient() : m_iServerPort(25), m_iTimeout(10), m_hSocket(INVALID_SOCKET)
+CSmtpClient::CSmtpClient() : m_iServerPort(25), m_iTimeout(10), m_hSocket(INVALID_SOCKET), m_psttSsl(NULL)
 {
 }
 
@@ -32,7 +32,7 @@ CSmtpClient::~CSmtpClient()
 	Close();
 }
 
-bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord )
+bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord, bool bUseTls )
 {
 	if( m_hSocket != INVALID_SOCKET )
 	{
@@ -50,6 +50,17 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 	{
 		CLog::Print( LOG_ERROR, "%s TcpConnect(%s:%d) error(%d)", __FUNCTION__, pszServerIp, iServerPort, GetError() );
 		return false;
+	}
+
+	if( bUseTls )
+	{
+		SSLClientStart();
+		if( SSLConnect( m_hSocket, &m_psttSsl ) == false )
+		{
+			CLog::Print( LOG_ERROR, "%s TlsConnect(%s:%d) error", __FUNCTION__, pszServerIp, iServerPort );
+			Close();
+			return false;
+		}
 	}
 
 	CSmtpResponse clsResponse;
@@ -162,6 +173,12 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 
 void CSmtpClient::Close( )
 {
+	if( m_psttSsl )
+	{
+		SSLClose( m_psttSsl );
+		m_psttSsl = NULL;
+	}
+
 	if( m_hSocket != INVALID_SOCKET )
 	{
 		closesocket( m_hSocket );
@@ -245,12 +262,25 @@ bool CSmtpClient::Send( std::string & strRequest, CSmtpResponse & clsResponse, i
 
 	int iSendLen = strRequest.length();
 
-	CLog::Print( LOG_NETWORK, "TcpSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
-
-	if( TcpSend( m_hSocket, strRequest.c_str(), iSendLen ) != iSendLen )
+	if( m_psttSsl )
 	{
-		CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strRequest.c_str(), GetError() );
-		return false;
+		CLog::Print( LOG_NETWORK, "TlsSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
+
+		if( SSLSend( m_psttSsl, strRequest.c_str(), iSendLen ) != iSendLen )
+		{
+			CLog::Print( LOG_ERROR, "%s TlsSend(%s) error", __FUNCTION__, strRequest.c_str() );
+			return false;
+		}
+	}
+	else
+	{
+		CLog::Print( LOG_NETWORK, "TcpSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
+
+		if( TcpSend( m_hSocket, strRequest.c_str(), iSendLen ) != iSendLen )
+		{
+			CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strRequest.c_str(), GetError() );
+			return false;
+		}
 	}
 
 	if( Recv( clsResponse ) == false ) return false;
@@ -279,14 +309,28 @@ bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
 
 	while( 1 )
 	{
-		n = TcpRecv( m_hSocket, szRecvBuf, sizeof(szRecvBuf), m_iTimeout );
-		if( n <= 0 )
+		if( m_psttSsl )
 		{
-			CLog::Print( LOG_ERROR, "%s TcpRecv(%s) error(%d)", __FUNCTION__, strRecvBuf.c_str(), GetError() );
-			return false;
-		}
+			n = SSLRecv( m_psttSsl, szRecvBuf, sizeof(szRecvBuf) );
+			if( n <= 0 )
+			{
+				CLog::Print( LOG_ERROR, "%s TlsRecv(%s) error", __FUNCTION__, strRecvBuf.c_str() );
+				return false;
+			}
 
-		CLog::Print( LOG_NETWORK, "TcpRecv(%s:%d) [%.*s]", m_strServerIp.c_str(), m_iServerPort, n, szRecvBuf );
+			CLog::Print( LOG_NETWORK, "TlsRecv(%s:%d) [%.*s]", m_strServerIp.c_str(), m_iServerPort, n, szRecvBuf );
+		}
+		else
+		{
+			n = TcpRecv( m_hSocket, szRecvBuf, sizeof(szRecvBuf), m_iTimeout );
+			if( n <= 0 )
+			{
+				CLog::Print( LOG_ERROR, "%s TcpRecv(%s) error(%d)", __FUNCTION__, strRecvBuf.c_str(), GetError() );
+				return false;
+			}
+
+			CLog::Print( LOG_NETWORK, "TcpRecv(%s:%d) [%.*s]", m_strServerIp.c_str(), m_iServerPort, n, szRecvBuf );
+		}
 
 		strRecvBuf.append( szRecvBuf, n );
 		if( clsResponse.Parse( strRecvBuf.c_str(), strRecvBuf.length() ) > 0 )
