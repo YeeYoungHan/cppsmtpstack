@@ -32,6 +32,16 @@ CSmtpClient::~CSmtpClient()
 	Close();
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버에 TCP/TLS 세션을 연결한 후, SMTP 로그인을 수행한다.
+ * @param pszServerIp SMTP 서버 도메인 또는 IP 주소
+ * @param iServerPort SMTP 서버 포트 번호
+ * @param pszUserId		아이디
+ * @param pszPassWord 비밀번호
+ * @param bUseTls			TLS 세션을 사용하면 true 를 입력하고 그렇지 않으면 false 를 입력한다.
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord, bool bUseTls )
 {
 	if( m_hSocket != INVALID_SOCKET )
@@ -171,6 +181,10 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 세션을 종료한다.
+ */
 void CSmtpClient::Close( )
 {
 	if( m_psttSsl )
@@ -186,6 +200,15 @@ void CSmtpClient::Close( )
 	}
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 메일을 전송한다.
+ * @param pszFrom			발신자 email 주소
+ * @param pszTo				수신자 email 주소
+ * @param pszSubject	메일 주제
+ * @param pszData			메일 내용
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * pszSubject, const char * pszData )
 {
 	if( m_hSocket == INVALID_SOCKET )
@@ -256,6 +279,14 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버로 데이터를 전송한다.
+ * @param strRequest	SMTP 서버로 전송할 데이터
+ * @param clsResponse [out] 응답 메시지를 저장한 변수
+ * @param iWantCode		원하는 응답 코드
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::Send( std::string & strRequest, CSmtpResponse & clsResponse, int iWantCode )
 {
 	strRequest.append( "\r\n" );
@@ -294,6 +325,14 @@ bool CSmtpClient::Send( std::string & strRequest, CSmtpResponse & clsResponse, i
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버로 데이터를 전송한다.
+ * @param pszRequest	SMTP 서버로 전송할 데이터
+ * @param clsResponse [out] 응답 메시지를 저장한 변수
+ * @param iWantCode		원하는 응답 코드
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::Send( const char * pszRequest, CSmtpResponse & clsResponse, int iWantCode )
 {
 	std::string strRequest = pszRequest;
@@ -301,6 +340,12 @@ bool CSmtpClient::Send( const char * pszRequest, CSmtpResponse & clsResponse, in
 	return Send( strRequest, clsResponse, iWantCode );
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버에서 응답 메시지를 수신한다.
+ * @param clsResponse [out] 응답 메시지를 저장한 변수
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
 {
 	std::string strRecvBuf;

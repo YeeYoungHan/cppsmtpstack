@@ -24,6 +24,10 @@
 #include "SmtpResponse.h"
 #include "TlsFunction.h"
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 클라이언트 - SMTP 서버로 메일을 전송한다.
+ */
 class CSmtpClient
 {
 public:
