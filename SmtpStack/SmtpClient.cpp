@@ -306,7 +306,7 @@ bool CSmtpClient::Send( )
 	}
 
 	strSendBuf = "Subject: ";
-	strSendBuf.append( m_strSubject );
+	AddLangBuf( m_strSubject, strSendBuf );
 	strSendBuf.append( "\r\n" );
 
 	strSendBuf.append( "From: " );
@@ -538,6 +538,14 @@ bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 한 줄에 76byte 길이의 BASE64 문자열을 생성한다.
+ * @param pszData			입력 문자열
+ * @param iDataLen		입력 문자열 길이
+ * @param strSendBuf	[out] 한 줄에 76byte 길이의 BASE64 문자열 저장 변수
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::AddBase64( const char * pszData, int iDataLen, std::string & strSendBuf )
 {
 	char	szBuf[77];
@@ -556,6 +564,36 @@ bool CSmtpClient::AddBase64( const char * pszData, int iDataLen, std::string & s
 		strSendBuf.append( "\r\n" );
 
 		iPos += iLen;
+	}
+
+	return true;
+}
+
+/**
+ * @ingroup SmtpStack
+ * @brief 설정 언어에 적합하게 수정하여서 버퍼에 저장한다.
+ * @param strInput		입력 문자열
+ * @param strSendBuf	[out] 출력 문자열
+ * @returns true 를 리턴한다.
+ */
+bool CSmtpClient::AddLangBuf( std::string & strInput, std::string & strSendBuf )
+{
+	switch( m_eLang )
+	{
+	case E_SL_EN:
+		strSendBuf.append( strInput );
+		break;
+	case E_SL_KO:
+		{
+			std::string strOutput;
+
+			Base64Encode( strInput.c_str(), (int)strInput.length(), strOutput );
+
+			strSendBuf.append( "=?ks_c_5601-1987?B?" );
+			strSendBuf.append( strOutput );
+			strSendBuf.append( "?=" );
+		}
+		break;
 	}
 
 	return true;

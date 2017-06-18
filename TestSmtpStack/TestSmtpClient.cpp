@@ -20,6 +20,8 @@
 #include "SmtpClient.h"
 #include "Log.h"
 
+#define USE_KO
+
 bool TestSmtpClient( int argc, char *argv[] )
 {
 	CSmtpClient clsClient;
@@ -49,8 +51,17 @@ bool TestSmtpClient( int argc, char *argv[] )
 	clsClient.SetUser( pszUserId, pszPassWord );
 	clsClient.SetFrom( pszEmailFrom );
 	clsClient.SetTo( pszEmailTo );
+
+#ifdef USE_KO
+	clsClient.SetLang( E_SL_KO );
+	clsClient.SetSubject( "테스트" );
+	clsClient.SetContent( "테스트 이메일" );
+#else
 	clsClient.SetSubject( "test" );
 	clsClient.SetContent( "test email" );
+#endif
+
+	//clsClient.SetAttachFile( "c:\\temp\\sqlite3.zip" );
 
 	if( clsClient.Connect( ) == false )
 	{

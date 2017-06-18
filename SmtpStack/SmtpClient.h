@@ -62,6 +62,7 @@ private:
 	bool Recv( CSmtpResponse & clsResponse );
 
 	bool AddBase64( const char * pszData, int iDataLen, std::string & strSendBuf );
+	bool AddLangBuf( std::string & strInput, std::string & strSendBuf );
 
 	/** SMTP 서버 도메인 or IP 주소 */
 	std::string m_strServerIp;
