@@ -23,7 +23,8 @@
 #include "TimeString.h"
 #include "MemoryDebug.h"
 
-CSmtpClient::CSmtpClient() : m_iServerPort(25), m_iTimeout(10), m_hSocket(INVALID_SOCKET), m_psttSsl(NULL)
+CSmtpClient::CSmtpClient() : m_iServerPort(25), m_bUseTls(false)
+	,	m_hSocket(INVALID_SOCKET), m_psttSsl(NULL), m_iTimeout(10)
 {
 }
 
@@ -32,17 +33,69 @@ CSmtpClient::~CSmtpClient()
 	Close();
 }
 
+bool CSmtpClient::SetServer( const char * pszServerIp, int iServerPort, bool bUseTls )
+{
+	if( pszServerIp == NULL || iServerPort <= 0 || iServerPort > 65535 )
+	{
+		return false;
+	}
+
+	m_strServerIp = pszServerIp;
+	m_iServerPort = iServerPort;
+	m_bUseTls = bUseTls;
+
+	return true;
+}
+
+bool CSmtpClient::SetUser( const char * pszUserId, const char * pszPassWord )
+{
+	m_strUserId = pszUserId;
+	m_strPassWord = pszPassWord;
+
+	return true;
+}
+
+bool CSmtpClient::SetFrom( const char * pszEmailFrom )
+{
+	m_strEmailFrom = pszEmailFrom;
+
+	return true;
+}
+
+bool CSmtpClient::SetTo( const char * pszEmailTo )
+{
+	m_strEmailTo = pszEmailTo;
+
+	return true;
+}
+
+bool CSmtpClient::SetSubject( const char * pszSubject )
+{
+	m_strSubject = pszSubject;
+
+	return true;
+}
+
+bool CSmtpClient::SetContent( const char * pszContent )
+{
+	m_strContent = pszContent;
+
+	return true;
+}
+
+bool CSmtpClient::SetAttachFile( const char * pszFileName )
+{
+	m_strAttachFileName = pszFileName;
+
+	return true;
+}
+
 /**
  * @ingroup SmtpStack
  * @brief SMTP 서버에 TCP/TLS 세션을 연결한 후, SMTP 로그인을 수행한다.
- * @param pszServerIp SMTP 서버 도메인 또는 IP 주소
- * @param iServerPort SMTP 서버 포트 번호
- * @param pszUserId		아이디
- * @param pszPassWord 비밀번호
- * @param bUseTls			TLS 세션을 사용하면 true 를 입력하고 그렇지 않으면 false 를 입력한다.
  * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
  */
-bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord, bool bUseTls )
+bool CSmtpClient::Connect( )
 {
 	if( m_hSocket != INVALID_SOCKET )
 	{
@@ -50,24 +103,19 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 		return false;
 	}
 
-	m_strServerIp = pszServerIp;
-	m_iServerPort = iServerPort;
-	m_strUserId = pszUserId;
-	m_strPassWord = pszPassWord;
-
-	m_hSocket = TcpConnect( pszServerIp, iServerPort, m_iTimeout );
+	m_hSocket = TcpConnect( m_strServerIp.c_str(), m_iServerPort, m_iTimeout );
 	if( m_hSocket == INVALID_SOCKET )
 	{
-		CLog::Print( LOG_ERROR, "%s TcpConnect(%s:%d) error(%d)", __FUNCTION__, pszServerIp, iServerPort, GetError() );
+		CLog::Print( LOG_ERROR, "%s TcpConnect(%s:%d) error(%d)", __FUNCTION__, m_strServerIp.c_str(), m_iServerPort, GetError() );
 		return false;
 	}
 
-	if( bUseTls )
+	if( m_bUseTls )
 	{
 		SSLClientStart();
 		if( SSLConnect( m_hSocket, &m_psttSsl ) == false )
 		{
-			CLog::Print( LOG_ERROR, "%s TlsConnect(%s:%d) error", __FUNCTION__, pszServerIp, iServerPort );
+			CLog::Print( LOG_ERROR, "%s TlsConnect(%s:%d) error", __FUNCTION__, m_strServerIp.c_str(), m_iServerPort );
 			Close();
 			return false;
 		}
@@ -120,9 +168,9 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 		std::string strData, strSendBuf;
 
 		strData.append( "\0", 1 );
-		strData.append( pszUserId );
+		strData.append( m_strUserId );
 		strData.append( "\0", 1 );
-		strData.append( pszPassWord );
+		strData.append( m_strPassWord );
 
 		if( Base64Encode( strData.c_str(), strData.length(), strSendBuf ) == false )
 		{
@@ -149,14 +197,14 @@ bool CSmtpClient::Connect( const char * pszServerIp, int iServerPort, const char
 
 		std::string strBase64Id, strBase64Pw;
 
-		if( Base64Encode( pszUserId, strlen(pszUserId), strBase64Id ) == false )
+		if( Base64Encode( m_strUserId.c_str(), (int)m_strUserId.length(), strBase64Id ) == false )
 		{
 			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 id error", __FUNCTION__ );
 			Close();
 			return false;
 		}
 
-		if( Base64Encode( pszPassWord, strlen(pszPassWord), strBase64Pw ) == false )
+		if( Base64Encode( m_strPassWord.c_str(), (int)m_strPassWord.length(), strBase64Pw ) == false )
 		{
 			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 pw error", __FUNCTION__ );
 			Close();
@@ -203,13 +251,9 @@ void CSmtpClient::Close( )
 /**
  * @ingroup SmtpStack
  * @brief SMTP 메일을 전송한다.
- * @param pszFrom			발신자 email 주소
- * @param pszTo				수신자 email 주소
- * @param pszSubject	메일 주제
- * @param pszData			메일 내용
  * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
  */
-bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * pszSubject, const char * pszData )
+bool CSmtpClient::Send( )
 {
 	if( m_hSocket == INVALID_SOCKET )
 	{
@@ -222,7 +266,7 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 
 	strSendBuf = "MAIL FROM:";
 	strSendBuf.append( "<" );
-	strSendBuf.append( pszFrom );
+	strSendBuf.append( m_strEmailFrom );
 	strSendBuf.append( ">" );
 
 	if( Send( strSendBuf, clsResponse, 250 ) == false ) 
@@ -233,7 +277,7 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 
 	strSendBuf = "RCPT TO:";
 	strSendBuf.append( "<" );
-	strSendBuf.append( pszTo );
+	strSendBuf.append( m_strEmailTo );
 	strSendBuf.append( ">" );
 
 	if( Send( strSendBuf, clsResponse, 250 ) == false ) 
@@ -249,15 +293,15 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 	}
 
 	strSendBuf = "Subject: ";
-	strSendBuf.append( pszSubject );
+	strSendBuf.append( m_strSubject );
 	strSendBuf.append( "\r\n" );
 
 	strSendBuf.append( "From: " );
-	strSendBuf.append( pszFrom );
+	strSendBuf.append( m_strEmailFrom );
 	strSendBuf.append( "\r\n" );
 
 	strSendBuf.append( "To: " );
-	strSendBuf.append( pszTo );
+	strSendBuf.append( m_strEmailTo );
 	strSendBuf.append( "\r\n" );
 
 	char szDate[31];
@@ -267,7 +311,7 @@ bool CSmtpClient::Send( const char * pszFrom, const char * pszTo, const char * p
 	strSendBuf.append( szDate );
 	strSendBuf.append( "\r\n\r\n" );
 
-	strSendBuf.append( pszData );
+	strSendBuf.append( m_strContent );
 	strSendBuf.append( "\r\n." );
 
 	if( Send( strSendBuf, clsResponse, 250 ) == false )

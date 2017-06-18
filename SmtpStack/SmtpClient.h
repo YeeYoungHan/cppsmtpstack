@@ -34,24 +34,58 @@ public:
 	CSmtpClient();
 	~CSmtpClient();
 
-	bool Connect( const char * pszServerIp, int iServerPort, const char * pszUserId, const char * pszPassWord, bool bUseTls = false );
+	bool SetServer( const char * pszServerIp, int iServerPort, bool bUseTls = false );
+	bool SetUser( const char * pszUserId, const char * pszPassWord );
+	bool SetFrom( const char * pszEmailFrom );
+	bool SetTo( const char * pszEmailTo );
+	bool SetSubject( const char * pszSubject );
+	bool SetContent( const char * pszContent );
+	bool SetAttachFile( const char * pszFileName );
+
+	bool Connect( );
 	void Close( );
 
-	bool Send( const char * pszFrom, const char * pszTo, const char * pszSubject, const char * pszData );
+	bool Send( );
 
 private:
+
 	bool Send( std::string & strRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
 	bool Send( const char * pszRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
 	bool Recv( CSmtpResponse & clsResponse );
 
+	/** SMTP 서버 도메인 or IP 주소 */
 	std::string m_strServerIp;
+
+	/** SMTP 서버 포트 번호 */
 	int					m_iServerPort;
+
+	/** SMTP 통신을 TLS 기반으로 하면 true 를 입력하고 그렇지 않으면 false 를 입력한다. */
+	bool				m_bUseTls;
+
+	/** SMTP 로그인 사용자 아이디 */
 	std::string m_strUserId;
+
+	/** SMTP 로그인 비밀번호 */
 	std::string m_strPassWord;
-	int					m_iTimeout;
+
+	/** 발신자 이메일 주소 */
+	std::string m_strEmailFrom;
+
+	/** 수신자 이메일 주소 */
+	std::string m_strEmailTo;
+
+	/** 이메일 주제 */
+	std::string m_strSubject;
+
+	/** 이메일 내용 */
+	std::string m_strContent;
+
+	/** 이메일 첨부파일 */
+	std::string m_strAttachFileName;
 
 	Socket			m_hSocket;
 	SSL					* m_psttSsl;
+	int					m_iTimeout;
 };
 
 #endif

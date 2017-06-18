@@ -38,14 +38,27 @@ bool TestSmtpClient( int argc, char *argv[] )
 
 	CLog::SetLevel( LOG_DEBUG | LOG_NETWORK );
 
-	if( clsClient.Connect( argv[1], atoi(argv[2]), argv[3], argv[4], bUseTls ) == false )
-	{
-		return false;
-	}
+	const char * pszServerIp = argv[1];
+	int iServerPort = atoi(argv[2]);
+	const char * pszUserId = argv[3];
+	const char * pszPassWord = argv[4];
+	const char * pszEmailFrom = argv[5];
+	const char * pszEmailTo = argv[6];
 
-	if( clsClient.Send( argv[5], argv[6], "test", "test mail" ) == false )
+	clsClient.SetServer( pszServerIp, iServerPort, bUseTls );
+	clsClient.SetUser( pszUserId, pszPassWord );
+	clsClient.SetFrom( pszEmailFrom );
+	clsClient.SetTo( pszEmailTo );
+	clsClient.SetSubject( "test" );
+	clsClient.SetContent( "test email" );
+
+	if( clsClient.Connect( ) == false )
 	{
-		return false;
+		printf( "connect SMTP server error\n" );
+	}
+	else if( clsClient.Send( ) == false )
+	{
+		printf( "send SMTP email error\n" );
 	}
 
 	return true;
