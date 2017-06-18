@@ -21,9 +21,10 @@
 #include "Log.h"
 #include "Base64.h"
 #include "TimeString.h"
+#include "FileUtility.h"
 #include "MemoryDebug.h"
 
-CSmtpClient::CSmtpClient() : m_iServerPort(25), m_bUseTls(false)
+CSmtpClient::CSmtpClient() : m_iServerPort(25), m_bUseTls(false), m_eLang(E_SL_EN)
 	,	m_hSocket(INVALID_SOCKET), m_psttSsl(NULL), m_iTimeout(10)
 {
 }
@@ -86,6 +87,13 @@ bool CSmtpClient::SetContent( const char * pszContent )
 bool CSmtpClient::SetAttachFile( const char * pszFileName )
 {
 	m_strAttachFileName = pszFileName;
+
+	return true;
+}
+
+bool CSmtpClient::SetLang( ESmtpLang eLang )
+{
+	m_eLang = eLang;
 
 	return true;
 }
@@ -261,8 +269,13 @@ bool CSmtpClient::Send( )
 		return false;
 	}
 
-	std::string strSendBuf;
+	std::string strSendBuf, strBoundary;
 	CSmtpResponse clsResponse;
+	char szTime[21];
+
+	strBoundary = "__CPP_SMTP_STACK__";
+	GetDateTimeString( szTime, sizeof(szTime) );
+	strBoundary.append( szTime );
 
 	strSendBuf = "MAIL FROM:";
 	strSendBuf.append( "<" );
@@ -309,9 +322,87 @@ bool CSmtpClient::Send( )
 	GetSmtpDateString( szDate, sizeof(szDate) );
 	strSendBuf.append( "Date: " );
 	strSendBuf.append( szDate );
+	strSendBuf.append( "\r\n" );
+
+	strSendBuf.append( "MIME-Version: 1.0\r\n" );
+  strSendBuf.append( "Content-Type: multipart/mixed; boundary=\"" );
+	strSendBuf.append( strBoundary );
+	strSendBuf.append( "\"" );
+
 	strSendBuf.append( "\r\n\r\n" );
 
-	strSendBuf.append( m_strContent );
+	strSendBuf.append( "--" );
+	strSendBuf.append( strBoundary );
+	strSendBuf.append( "\r\n" );
+	strSendBuf.append( "Content-type: text/plain;charset=" );
+
+	switch( m_eLang )
+	{
+	case E_SL_EN:
+		strSendBuf.append( "US-ASCII" );
+		break;
+	case E_SL_KO:
+		strSendBuf.append( "ks_c_5601-1987" );
+		break;
+	}
+
+	strSendBuf.append( "\r\n" );
+	strSendBuf.append( "Content-Transfer-Encoding: base64\r\n" );
+	strSendBuf.append( "\r\n" );
+
+	AddBase64( m_strContent.c_str(), (int)m_strContent.length(), strSendBuf );
+	strSendBuf.append( "\r\n" );
+
+	if( m_strAttachFileName.empty() == false )
+	{
+		FILE * fd = fopen( m_strAttachFileName.c_str(), "rb" );
+		if( fd )
+		{
+			std::string strFileName;
+			char szBuf[54];
+			int iRead;
+
+			GetFileNameOfFilePath( m_strAttachFileName.c_str(), strFileName );
+
+			strSendBuf.append( "--" );
+			strSendBuf.append( strBoundary );
+			strSendBuf.append( "\r\n" );
+			strSendBuf.append( "Content-type: application/x-msdownload; name=\"" );
+			strSendBuf.append( strFileName );
+			strSendBuf.append( "\"\r\n" );
+			strSendBuf.append( "Content-Transfer-Encoding: base64\r\n" );
+			strSendBuf.append( "Content-Disposition: attachment; filename=\"" );
+			strSendBuf.append( strFileName );
+			strSendBuf.append( "\"\r\n" );
+			strSendBuf.append( "\r\n" );
+
+			Send( strSendBuf );
+			strSendBuf.clear();
+			
+			while( 1 )
+			{
+				iRead = fread( szBuf, 1, 54, fd );
+				if( iRead <= 0 ) break;
+
+				AddBase64( szBuf, iRead, strSendBuf );
+				if( strSendBuf.length() > 4000 )
+				{
+					Send( strSendBuf );
+					strSendBuf.clear();
+				}
+			}
+
+			fclose( fd );
+
+			strSendBuf.append( "\r\n" );
+		}
+	}
+
+	strSendBuf.append( "--" );
+	strSendBuf.append( strBoundary );
+	strSendBuf.append( "--" );
+	strSendBuf.append( "\r\n" );
+
 	strSendBuf.append( "\r\n." );
 
 	if( Send( strSendBuf, clsResponse, 250 ) == false )
@@ -335,27 +426,9 @@ bool CSmtpClient::Send( std::string & strRequest, CSmtpResponse & clsResponse, i
 {
 	strRequest.append( "\r\n" );
 
-	int iSendLen = strRequest.length();
-
-	if( m_psttSsl )
+	if( Send( strRequest ) == false )
 	{
-		CLog::Print( LOG_NETWORK, "TlsSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
-
-		if( SSLSend( m_psttSsl, strRequest.c_str(), iSendLen ) != iSendLen )
-		{
-			CLog::Print( LOG_ERROR, "%s TlsSend(%s) error", __FUNCTION__, strRequest.c_str() );
-			return false;
-		}
-	}
-	else
-	{
-		CLog::Print( LOG_NETWORK, "TcpSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
-
-		if( TcpSend( m_hSocket, strRequest.c_str(), iSendLen ) != iSendLen )
-		{
-			CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strRequest.c_str(), GetError() );
-			return false;
-		}
+		return false;
 	}
 
 	if( Recv( clsResponse ) == false ) return false;
@@ -382,6 +455,40 @@ bool CSmtpClient::Send( const char * pszRequest, CSmtpResponse & clsResponse, in
 	std::string strRequest = pszRequest;
 
 	return Send( strRequest, clsResponse, iWantCode );
+}
+
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버로 데이터를 전송한다.
+ * @param strRequest	SMTP 서버로 전송할 데이터
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
+bool CSmtpClient::Send( std::string & strRequest )
+{
+	int iSendLen = strRequest.length();
+
+	if( m_psttSsl )
+	{
+		CLog::Print( LOG_NETWORK, "TlsSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
+
+		if( SSLSend( m_psttSsl, strRequest.c_str(), iSendLen ) != iSendLen )
+		{
+			CLog::Print( LOG_ERROR, "%s TlsSend(%s) error", __FUNCTION__, strRequest.c_str() );
+			return false;
+		}
+	}
+	else
+	{
+		CLog::Print( LOG_NETWORK, "TcpSend(%s:%d) [%s]", m_strServerIp.c_str(), m_iServerPort, strRequest.c_str() );
+
+		if( TcpSend( m_hSocket, strRequest.c_str(), iSendLen ) != iSendLen )
+		{
+			CLog::Print( LOG_ERROR, "%s TcpSend(%s) error(%d)", __FUNCTION__, strRequest.c_str(), GetError() );
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**
@@ -426,6 +533,29 @@ bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
 		{
 			break;
 		}
+	}
+
+	return true;
+}
+
+bool CSmtpClient::AddBase64( const char * pszData, int iDataLen, std::string & strSendBuf )
+{
+	char	szBuf[77];
+	int		iPos = 0, iLen;
+
+	while( iPos < iDataLen )
+	{
+		iLen = iDataLen - iPos;
+		if( iLen > 54 )
+		{
+			iLen = 54;
+		}
+
+		Base64Encode( pszData + iPos, iLen, szBuf, sizeof(szBuf) );
+		strSendBuf.append( szBuf );
+		strSendBuf.append( "\r\n" );
+
+		iPos += iLen;
 	}
 
 	return true;

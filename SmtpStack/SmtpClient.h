@@ -24,6 +24,12 @@
 #include "SmtpResponse.h"
 #include "TlsFunction.h"
 
+enum ESmtpLang
+{
+	E_SL_EN = 0,
+	E_SL_KO
+};
+
 /**
  * @ingroup SmtpStack
  * @brief SMTP 클라이언트 - SMTP 서버로 메일을 전송한다.
@@ -41,6 +47,7 @@ public:
 	bool SetSubject( const char * pszSubject );
 	bool SetContent( const char * pszContent );
 	bool SetAttachFile( const char * pszFileName );
+	bool SetLang( ESmtpLang eLang );
 
 	bool Connect( );
 	void Close( );
@@ -51,7 +58,10 @@ private:
 
 	bool Send( std::string & strRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
 	bool Send( const char * pszRequest, CSmtpResponse & clsResponse, int iWantCode = 0 );
+	bool Send( std::string & strRequest );
 	bool Recv( CSmtpResponse & clsResponse );
+
+	bool AddBase64( const char * pszData, int iDataLen, std::string & strSendBuf );
 
 	/** SMTP 서버 도메인 or IP 주소 */
 	std::string m_strServerIp;
@@ -82,6 +92,8 @@ private:
 
 	/** 이메일 첨부파일 */
 	std::string m_strAttachFileName;
+
+	ESmtpLang		m_eLang;
 
 	Socket			m_hSocket;
 	SSL					* m_psttSsl;
