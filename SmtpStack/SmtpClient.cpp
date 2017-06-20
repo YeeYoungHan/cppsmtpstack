@@ -34,6 +34,14 @@ CSmtpClient::~CSmtpClient()
 	Close();
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버 정보를 설정한다.
+ * @param pszServerIp SMTP 서버 도메인 이름 또는 IP 주소
+ * @param iServerPort SMTP 서버 포트 번호
+ * @param bUseTls			TLS 사용 유무
+ * @returns 성공하면 true 를 리턴하고 실패하면 false 를 리턴한다.
+ */
 bool CSmtpClient::SetServer( const char * pszServerIp, int iServerPort, bool bUseTls )
 {
 	if( pszServerIp == NULL || iServerPort <= 0 || iServerPort > 65535 )
@@ -48,6 +56,13 @@ bool CSmtpClient::SetServer( const char * pszServerIp, int iServerPort, bool bUs
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief SMTP 서버에 로그인할 사용자 정보를 설정한다.
+ * @param pszUserId		아이디
+ * @param pszPassWord 비밀번호
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetUser( const char * pszUserId, const char * pszPassWord )
 {
 	m_strUserId = pszUserId;
@@ -56,6 +71,12 @@ bool CSmtpClient::SetUser( const char * pszUserId, const char * pszPassWord )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 발신자 이메일 주소를 설정한다.
+ * @param pszEmailFrom 발신자 이메일 주소
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetFrom( const char * pszEmailFrom )
 {
 	m_strEmailFrom = pszEmailFrom;
@@ -63,6 +84,12 @@ bool CSmtpClient::SetFrom( const char * pszEmailFrom )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 수신자 이메일 주소를 설정한다.
+ * @param pszEmailTo 수신자 이메일 주소
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetTo( const char * pszEmailTo )
 {
 	m_strEmailTo = pszEmailTo;
@@ -70,6 +97,12 @@ bool CSmtpClient::SetTo( const char * pszEmailTo )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 이메일 주제를 설정한다.
+ * @param pszSubject 이메일 주제
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetSubject( const char * pszSubject )
 {
 	m_strSubject = pszSubject;
@@ -77,6 +110,12 @@ bool CSmtpClient::SetSubject( const char * pszSubject )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 이메일 내용을 설정한다.
+ * @param pszContent 이메일 내용
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetContent( const char * pszContent )
 {
 	m_strContent = pszContent;
@@ -84,6 +123,12 @@ bool CSmtpClient::SetContent( const char * pszContent )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 이메일 첨부파일을 설정한다.
+ * @param pszFileName 이메일 첨부파일 (full path)
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetAttachFile( const char * pszFileName )
 {
 	m_strAttachFileName = pszFileName;
@@ -91,11 +136,30 @@ bool CSmtpClient::SetAttachFile( const char * pszFileName )
 	return true;
 }
 
+/**
+ * @ingroup SmtpStack
+ * @brief 이메일 언어를 설정한다.
+ * @param eLang 이메일 언어
+ * @returns true 를 리턴한다.
+ */
 bool CSmtpClient::SetLang( ESmtpLang eLang )
 {
 	m_eLang = eLang;
 
 	return true;
+}
+
+/**
+ * @ingroup SmtpStack
+ * @brief 이메일 정보를 초기화시킨다.
+ */
+void CSmtpClient::ClearEmail()
+{
+	m_strEmailFrom.clear();
+	m_strEmailTo.clear();
+	m_strSubject.clear();
+	m_strContent.clear();
+	m_strAttachFileName.clear();
 }
 
 /**
@@ -266,6 +330,30 @@ bool CSmtpClient::Send( )
 	if( m_hSocket == INVALID_SOCKET )
 	{
 		CLog::Print( LOG_ERROR, "%s m_hSocket = INVALID_SOCKET", __FUNCTION__ );
+		return false;
+	}
+
+	if( m_strEmailFrom.empty() )
+	{
+		CLog::Print( LOG_ERROR, "%s m_strEmailFrom is empty", __FUNCTION__ );
+		return false;
+	}
+
+	if( m_strEmailTo.empty() )
+	{
+		CLog::Print( LOG_ERROR, "%s m_strEmailTo is empty", __FUNCTION__ );
+		return false;
+	}
+
+	if( m_strSubject.empty() )
+	{
+		CLog::Print( LOG_ERROR, "%s m_strSubject is empty", __FUNCTION__ );
+		return false;
+	}
+
+	if( m_strContent.empty() )
+	{
+		CLog::Print( LOG_ERROR, "%s m_strContent is empty", __FUNCTION__ );
 		return false;
 	}
 

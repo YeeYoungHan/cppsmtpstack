@@ -49,6 +49,8 @@ public:
 	bool SetAttachFile( const char * pszFileName );
 	bool SetLang( ESmtpLang eLang );
 
+	void ClearEmail();
+
 	bool Connect( );
 	void Close( );
 
