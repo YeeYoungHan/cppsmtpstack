@@ -40,7 +40,7 @@ bool TestSmtpResponse( const char * pszInput, int iCode, int iArgCount, ... )
 		return false;
 	}
 
-	if( clsResponse.m_clsReplyList.size() != iArgCount )
+	if( (int)clsResponse.m_clsReplyList.size() != iArgCount )
 	{
 		printf( "%s m_clsReplyList.size(%d) != iArgCount(%d) (%s)\n", __FUNCTION__, (int)clsResponse.m_clsReplyList.size(), iArgCount, pszInput );
 		return false;
