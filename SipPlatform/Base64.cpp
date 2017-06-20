@@ -19,6 +19,7 @@
 #include "Base64.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 static char garrBase64Table[] =
 	{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',

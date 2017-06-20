@@ -17,6 +17,7 @@
  */
 
 #include "SmtpResponse.h"
+#include <stdlib.h>
 #include "MemoryDebug.h"
 
 CSmtpResponse::CSmtpResponse() : m_iCode(0)
