@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SipPlatform", "SipPlatform\SipPlatform.vcproj", "{59766094-16E8-4602-9621-6C1E5ED9AF5F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SmtpStack", "SmtpStack\SmtpStack.vcproj", "{640E283F-2626-4DA0-9677-D59EA1EC1F23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{59766094-16E8-4602-9621-6C1E5ED9AF5F} = {59766094-16E8-4602-9621-6C1E5ED9AF5F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestSmtpStack", "TestSmtpStack\TestSmtpStack.vcproj", "{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,16 +32,16 @@ Global
 		{59766094-16E8-4602-9621-6C1E5ED9AF5F}.Release|x64.Build.0 = Release|x64
 		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Debug|Win32.ActiveCfg = Debug|Win32
 		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Debug|Win32.Build.0 = Debug|Win32
-		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Debug|x64.ActiveCfg = Debug|Win32
+		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Debug|x64.ActiveCfg = Debug|x64
 		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Release|Win32.ActiveCfg = Release|Win32
 		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Release|Win32.Build.0 = Release|Win32
-		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Release|x64.ActiveCfg = Release|Win32
+		{640E283F-2626-4DA0-9677-D59EA1EC1F23}.Release|x64.ActiveCfg = Release|x64
 		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Debug|Win32.Build.0 = Debug|Win32
-		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Debug|x64.ActiveCfg = Debug|Win32
+		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Debug|x64.ActiveCfg = Debug|x64
 		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Release|Win32.ActiveCfg = Release|Win32
 		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Release|Win32.Build.0 = Release|Win32
-		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Release|x64.ActiveCfg = Release|Win32
+		{E1DD0045-1F3C-4B44-AEA7-14028AFEEC70}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

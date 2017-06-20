@@ -81,7 +81,7 @@ bool TestSmtpResponse( )
 			, 4
 			, "First line", "Second line", "234 Text beginning with numbers", "The last line" ) == false ) return false;
 
-	printf( "%s OK!!!", __FUNCTION__ );
+	printf( "%s OK!!!\n", __FUNCTION__ );
 	
 	return true;
 }

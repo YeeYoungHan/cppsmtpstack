@@ -244,7 +244,7 @@ bool CSmtpClient::Connect( )
 		strData.append( "\0", 1 );
 		strData.append( m_strPassWord );
 
-		if( Base64Encode( strData.c_str(), strData.length(), strSendBuf ) == false )
+		if( Base64Encode( strData.c_str(), (int)strData.length(), strSendBuf ) == false )
 		{
 			CLog::Print( LOG_ERROR, "%s AUTH PLAIN base64 error", __FUNCTION__ );
 			Close();
@@ -469,7 +469,7 @@ bool CSmtpClient::Send( )
 			
 			while( 1 )
 			{
-				iRead = fread( szBuf, 1, 54, fd );
+				iRead = (int)fread( szBuf, 1, 54, fd );
 				if( iRead <= 0 ) break;
 
 				AddBase64( szBuf, iRead, strSendBuf );
@@ -553,7 +553,7 @@ bool CSmtpClient::Send( const char * pszRequest, CSmtpResponse & clsResponse, in
  */
 bool CSmtpClient::Send( std::string & strRequest )
 {
-	int iSendLen = strRequest.length();
+	int iSendLen = (int)strRequest.length();
 
 	if( m_psttSsl )
 	{
@@ -617,7 +617,7 @@ bool CSmtpClient::Recv( CSmtpResponse & clsResponse )
 		}
 
 		strRecvBuf.append( szRecvBuf, n );
-		if( clsResponse.Parse( strRecvBuf.c_str(), strRecvBuf.length() ) > 0 )
+		if( clsResponse.Parse( strRecvBuf.c_str(), (int)strRecvBuf.length() ) > 0 )
 		{
 			break;
 		}
