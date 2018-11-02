@@ -1,52 +1,53 @@
-# C++ Smtp stack ÇÁ·ÎÁ§Æ®
-C++ STL ±â¹ÝÀ¸·Î SMTP Å¬¶óÀÌ¾ðÆ® °³¹ß ÇÁ·ÎÁ§Æ®ÀÔ´Ï´Ù.
+# C++ Smtp stack í”„ë¡œì íŠ¸
+C++ STL ê¸°ë°˜ìœ¼ë¡œ SMTP í´ë¼ì´ì–¸íŠ¸ ê°œë°œ í”„ë¡œì íŠ¸ìž…ë‹ˆë‹¤.
 
-### °³¿ä
-º» ÇÁ·ÎÁ§Æ®ÀÇ ¸ñÇ¥´Â ´ÙÀ½°ú °°½À´Ï´Ù.
+### ê°œìš”
+ë³¸ í”„ë¡œì íŠ¸ì˜ ëª©í‘œëŠ” ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
-* C++ STL ±â¹Ý SMTP Å¬¶óÀÌ¾ðÆ® °³¹ß
+* C++ STL ê¸°ë°˜ SMTP í´ë¼ì´ì–¸íŠ¸ ê°œë°œ
 
-### °³¹ßÀÚ Á¤º¸
-º» ÇÁ·ÎÁ§Æ®¸¦ ÁøÇàÇÏ´Â °³¹ßÀÚ Á¤º¸´Â ´ÙÀ½°ú °°½À´Ï´Ù.
+### ê°œë°œìž ì •ë³´
+ë³¸ í”„ë¡œì íŠ¸ë¥¼ ì§„í–‰í•˜ëŠ” ê°œë°œìž ì •ë³´ëŠ” ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
-* ÀÌ¸ÞÀÏ : websearch@naver.com
-* ºí·Î±× : http://blog.naver.com/websearch
+* ì´ë©”ì¼ : websearch@naver.com
+* ë¸”ë¡œê·¸ : http://blog.naver.com/websearch
 
-### ¶óÀÌ¼±½º
+### ë¼ì´ì„ ìŠ¤
 
-* º» ÇÁ·ÎÁ§Æ®ÀÇ ¶óÀÌ¼±½º´Â GPLv3 ÀÌ°í ±â¾÷¿ë ¶óÀÌ¼±½º´Â websearch@naver.com À¸·Î ¹®ÀÇÇØ ÁÖ¼¼¿ä.
+* ë³¸ í”„ë¡œì íŠ¸ì˜ ë¼ì´ì„ ìŠ¤ëŠ” GPLv3 ì´ê³  ê¸°ì—…ìš© ë¼ì´ì„ ìŠ¤ëŠ” websearch@naver.com ìœ¼ë¡œ ë¬¸ì˜í•´ ì£¼ì„¸ìš”.
 
-### Æú´õ ¼³¸í
-º» ÇÁ·ÎÁ§Æ®¿¡ Æ÷ÇÔµÈ Æú´õ¿¡ ´ëÇÑ ¼³¸íÀº ´ÙÀ½°ú °°½À´Ï´Ù.
+### í´ë” ì„¤ëª…
+ë³¸ í”„ë¡œì íŠ¸ì— í¬í•¨ëœ í´ë”ì— ëŒ€í•œ ì„¤ëª…ì€ ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
 * SipPlatform
-  * C++ SIP stack ¿¡¼­ »ç¿ëµÇ´Â OS µ¶¸³ÀûÀÎ À¯Æ¿¸®Æ¼ ¶óÀÌºê·¯¸®
+  * C++ SIP stack ì—ì„œ ì‚¬ìš©ë˜ëŠ” OS ë…ë¦½ì ì¸ ìœ í‹¸ë¦¬í‹° ë¼ì´ë¸ŒëŸ¬ë¦¬
 
 * SmtpStack
-  * C++ STL ±â¹Ý SMTP Å¬¶óÀÌ¾ðÆ®
+  * C++ STL ê¸°ë°˜ SMTP í´ë¼ì´ì–¸íŠ¸
 
 * TestSmtpStack
-  * C++ Smtp stack ´ÜÀ§ Å×½ºÆ® ¹× Å×½ºÆ®
+  * C++ Smtp stack ë‹¨ìœ„ í…ŒìŠ¤íŠ¸ ë° í…ŒìŠ¤íŠ¸
 
-### ÄÄÆÄÀÏ ¹æ¹ý
-º» ÇÁ·ÎÁ§Æ®ÀÇ ¼Ò½º ÄÚµå¸¦ ÄÄÆÄÀÏÇÏ´Â ¹æ¹ýÀº ´ÙÀ½°ú °°½À´Ï´Ù.
+### ì»´íŒŒì¼ ë°©ë²•
+ë³¸ í”„ë¡œì íŠ¸ì˜ ì†ŒìŠ¤ ì½”ë“œë¥¼ ì»´íŒŒì¼í•˜ëŠ” ë°©ë²•ì€ ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
  * VC++ 2008
-   - SipStack.sln ´õºíÅ¬¸¯ÇÑ ÈÄ, ºôµåÇÑ´Ù.
-   - Visual Studio 2008 ¹öÀü 9.0.30729.1 SP ¿¡¼­ ºôµåÇÒ °ÍÀ» ±ÇÀåÇÕ´Ï´Ù.
+   - SipStack.sln ë”ë¸”í´ë¦­í•œ í›„, ë¹Œë“œí•œë‹¤.
+   - Visual Studio 2008 ë²„ì „ 9.0.30729.1 SP ì—ì„œ ë¹Œë“œí•  ê²ƒì„ ê¶Œìž¥í•©ë‹ˆë‹¤.
 
-* ¸®´ª½º
-  * make ¸¦ ½ÇÇàÇÑ´Ù.
+* ë¦¬ëˆ…ìŠ¤
+  * make ë¥¼ ì‹¤í–‰í•œë‹¤.
 
-### ¼Ò½º ÄÚµå ¿¹Á¦
-C++ SMTP Å¬¶óÀÌ¾ðÆ®·Î ÀÌ¸ÞÀÏÀ» º¸³»´Â ¼Ò½º ÄÚµå ¿¹Á¦´Â ´ÙÀ½°ú °°½À´Ï´Ù.
+### ì†ŒìŠ¤ ì½”ë“œ ì˜ˆì œ
+C++ SMTP í´ë¼ì´ì–¸íŠ¸ë¡œ ì´ë©”ì¼ì„ ë³´ë‚´ëŠ” ì†ŒìŠ¤ ì½”ë“œ ì˜ˆì œëŠ” ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
+```
  CSmtpClient clsClient;
  bool bUseTls = false;
  
- // QQQ: pszServerIp, iServerPort º¯¼ö ¼±¾ð ¹× °ª ÀÔ·Â
- // QQQ: pszUserId, pszPassWord º¯¼ö ¼±¾ð ¹× °ª ÀÔ·Â
- // QQQ: pszEmailFrom, pszEmailTo º¯¼ö ¼±¾ð ¹× °ª ÀÔ·Â
+ // QQQ: pszServerIp, iServerPort ë³€ìˆ˜ ì„ ì–¸ ë° ê°’ ìž…ë ¥
+ // QQQ: pszUserId, pszPassWord ë³€ìˆ˜ ì„ ì–¸ ë° ê°’ ìž…ë ¥
+ // QQQ: pszEmailFrom, pszEmailTo ë³€ìˆ˜ ì„ ì–¸ ë° ê°’ ìž…ë ¥
 
  clsClient.SetServer( pszServerIp, iServerPort, bUseTls );
  clsClient.SetUser( pszUserId, pszPassWord );
@@ -64,3 +65,4 @@ C++ SMTP Å¬¶óÀÌ¾ðÆ®·Î ÀÌ¸ÞÀÏÀ» º¸³»´Â ¼Ò½º ÄÚµå ¿¹Á¦´Â ´ÙÀ½°ú °°½À´Ï´Ù.
  {
   printf( "send SMTP email error\n" );
  }
+ ```
