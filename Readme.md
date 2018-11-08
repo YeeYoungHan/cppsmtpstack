@@ -66,3 +66,9 @@ C++ SMTP 클라이언트로 이메일을 보내는 소스 코드 예제는 다�
   printf( "send SMTP email error\n" );
  }
  ```
+ 
+### 관련 포스트
+
+* https://blog.naver.com/websearch/221034140493 : 첨부파일이 포함된 이메일 전송하는 방법
+* https://blog.naver.com/websearch/221034139023 : 한글 이메일 전송하는 방법
+* https://blog.naver.com/websearch/221032024480 : 오픈소스 C++ SMTP 클라이언트 개발 프로젝트
