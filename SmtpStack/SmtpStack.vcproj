@@ -296,6 +296,10 @@
 				RelativePath=".\SmtpResponse.h"
 				>
 			</File>
+			<File
+				RelativePath=".\SmtpStackVersion.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="TLS"

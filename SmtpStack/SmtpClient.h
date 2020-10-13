@@ -31,6 +31,11 @@ enum ESmtpLang
 };
 
 /**
+ * @defgroup SmtpStack SmtpStack
+ * SMTP 클라이언트 라이브러리
+ */
+
+/**
  * @ingroup SmtpStack
  * @brief SMTP 클라이언트 - SMTP 서버로 메일을 전송한다.
  */
